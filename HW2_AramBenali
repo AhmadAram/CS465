@@ -1,0 +1,18 @@
+
+.data
+
+array:
+	.space 36
+
+.text 
+
+main:
+	jal array_init
+	
+	
+array_init:
+	la $a1, array
+	li $t0, 0
+	sw $t0, 0($a1)
+	addi $a1, $a1, 4
+	bne $t0, 9, main
