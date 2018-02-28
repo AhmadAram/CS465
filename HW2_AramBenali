@@ -1,0 +1,76 @@
+.data
+
+array:
+	.space 48
+	
+	# 1 2 3		Up 2: addr - 24		Up 1: addr - 12
+	# 4 5 6		Down 2: addr + 24	Down 1: addr + 12
+	# 7 8 9		Left 1: addr - 4	Left 2: addr - 8
+	# 0 0 0		Right 1: addr + 4	Right 2: addr + 8
+
+	# edge cases:
+	# outer cells cannot move outside of bounds (offsets: 0, 4, 8, 12, 20, 24, 44)
+	# additionally, neglect 5 and zeroes on outer bottom row (offsets: 16, 40, 48)
+	
+.text 
+
+array_init1:
+	li $t0, 1
+	la $a1, array
+
+array_init2:
+	sw $t0, 0($a1)	# store the value of counter at the current address in the array
+	#li $v0, 1
+	#lw $a0, ($a1)
+	#syscall
+	addi $a1, $a1, 4	# increment address
+	addi $t0, $t0, 1	# increment counter
+	bne $t0, 10, array_init2	# loop until counter == 10
+	
+	# these next three instructions set the bottom row of the "2D" array to 0
+	sw $zero, 0($a1)
+	sw $zero, 4($a1)
+	sw $zero, 8($a1)
+	
+	li $s0, 0	# counter for total numbers generated
+	li $s1, 0	# counter to start anew after 7 digits
+	li $s2, 0	# loop counter
+	
+	la $a0, array		# load the address of array
+	
+	la $s3, 16($a0)
+	la $s4, 40($a0)
+	la $s5, 48($a0)
+	
+	addi $a0, $a0, 4	# add 4 to it so we start at the value 2
+	jal start		# this recursion stuff
+	li $v0, 1		# print int
+	move $a0, $s0		# move the computed result into output
+	syscall	
+	li $v0, 10		# exit program
+	syscall
+	
+start:
+	#addi $sp, $sp, -8	# room for $ra and one temporary
+        #sw $ra, 4($sp)		# save $ra
+	#move $v0, $a0		# pre-load return value as n
+	beq $s2, 10, return
+
+	addi $sp, $sp, -8
+	sw $ra, 4($sp)
+	beq $a0, $s3, return  	# if the current address holds 5
+	beq $a0, $s4, return	# if the current address holds *
+	beq $a0, $s5, return	# if the current address holds #
+	sw $a0, 0($sp) 		# save a copy of n
+	jal start
+	addi $s1, $s1, 1
+	lw $a0, 0($sp) 	
+	sw $v0, 0($sp) 	
+	addi $a0,$a0, 20
+	jal start
+	add $s1,$s1, 1 
+	
+return: 
+	lw $ra, 4($sp)		# restore $ra
+        addi $sp, $sp, 8	# restore $sp
+        jr $ra			# back to caller
