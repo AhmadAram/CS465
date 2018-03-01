@@ -1,3 +1,16 @@
+# Created by: Ahmad Aram and Nabil Adam Benali
+# Course: CS 465-002
+# Assignment: Homework 2
+#
+# Instruction count: 18307
+# Algorithm: Due to the nature of this problem, we used a more mathematical approach to solving it.
+#	There is a loop in main that calls the recursive label 16 times since we are going 
+#	through [2,9] inclusive - that is an 8 number range. Each number has at least 2 other values
+#	it can jump through. So 8 * 2 = 16. Cool!
+#	The recursive call literally just counts up to 7 by calling itself over and over. It skips
+#	or double the recursive call based on the loop value we are on. If it finds 7 numbers, it
+#	goes to another label that increments the total number counter. After loop ends, we print it.
+
 .data
 
 .text
