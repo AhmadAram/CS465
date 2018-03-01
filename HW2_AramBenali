@@ -1,0 +1,58 @@
+.data
+
+.text
+
+main:
+	li $t0, 0	# main loop counter
+	li $t1, 0	# holds the answer
+	li $s0, 0	# used for specifying if we are on the number 4, 5, or 6 for later branching
+	li $s1, 0	# sentinel value to determine if all recursion is done
+loop:	
+	addi $t0, $t0, 1	# increment the loop counter
+	jal recur		# recursive call
+	jal recur		# and a second since every number can reach at least 2 other ones
+	bne $t0, 16, loop	# do this 16 times since we need to reach 8*2 valid digits (range 2-9)
+	addi $t1, $t1, 1
+	j  exit
+
+recur:
+	addi $sp, $sp, -8	# create space on stack
+	sw   $a0, 0($sp) 	# save our current value for number counting on stack
+	sw   $ra, 4($sp) 	# save return address on stack
+	move $s0, $t0		# copy value for special conditions
+	
+	beq  $a0, 7, num_found 	#if it's greater than or equal to than seven jump to rbranch
+	addi $a0, $a0, 1	#if our current phone number length is less than 7
+	
+	beq $s0, 5, loop	# if we are on number 5, just skip it
+	
+	jal recur		# recursive call
+	beq $s0, 4, anotha
+	beq $s0, 6, anotha
+	j one
+anotha:
+	addi $s0, $s0, 1	# increment the condition variable so we do not infinite loop
+	jal recur		# recursive call
+one:
+	li $s1, 1		# set sentinel value to 'DONE'
+	j num_found
+
+num_found:
+	lw   $a0, 0($sp)	# load our current number length
+	lw   $ra, 4($sp)  	# load return address
+	
+	addi $sp, $sp, 8  	# pop that stack
+	beq $s1, 1, more	# if sentinel value is set
+	j recur_end
+more:
+	addi $t1, $t1, 1 	# then we have a 7-digit number and increment the answer
+recur_end:
+	jr $ra			# go back to return address
+
+exit:
+	li $v0, 1
+	move $a0, $t1
+	syscall
+	
+	li $v0, 10
+	syscall
