@@ -1,0 +1,64 @@
+.globl get_num
+.data
+#below is the prompts in order of how they are presented to the user
+prompt1: .asciiz "How many Values?"
+prompt2: .asciiz "What is the Base?"
+prompt3: .asciiz "what is the value?"
+buffer: .space 20
+
+#begin program
+.text
+#driver to get how many inputs 
+	#prints prompt onto screen for user
+	la $a0,prompt1
+	li $v0,4
+	syscall
+	
+	#receive user input and store the amount of values to be entered in $t9
+	li $v0,5
+	syscall 
+	la $t9,($v0)	#store user input in $t9 this will be how many times we loop
+# main loop to grab user input of base and value of number before passing to get_num	
+main_1:
+	#print second prompt to the user for what base the number should be
+	la $a0,prompt2
+	li $v0,4
+	syscall
+	
+	#recieve user input of what base the number is in
+	li $v0,5
+	syscall
+	la $t8,($v0) #store the base of the input to be used in get_num octal hex or decimal
+	
+	#prompt the user for the value of the input
+	la $a0,prompt3
+	li $v0,4
+	syscall
+	
+	#retrieve input and store
+	li $v0,8 #takes an input
+	la $a0, buffer #load the byte space into the address
+	li $a1,20 #make room for the string
+	move $t7,$a0 #store the string in $t7
+	syscall
+
+	subi $t9,$t9,1 #subtract one since we just got our first input
+	jal get_num	#jump to get_num which is to convert the string to the correct base and then to decimal
+	
+	#loop back if counter t9 is not equal to zero 
+	bnez $t9,main_1
+	j end #jump to end to terminate for now
+
+
+
+
+#begin get num routine, will be called by main to convert valid argument to decimal
+get_num:
+
+#jump back to the main_1 function to get the next input
+jr $ra
+
+end:
+li $v0,10
+syscall
+	
