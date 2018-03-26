@@ -19,6 +19,7 @@ buffer: .space 20
 	syscall 
 	la $t9,($v0)	#store user input in $t9 this will be how many times we loop
 # main loop to grab user input of base and value of number before passing to get_num	
+
 main_1:
 	#print second prompt to the user for what base the number should be
 	la $a0,prompt2
@@ -38,13 +39,13 @@ main_1:
 	#retrieve input and store
 	li $v0,8 #takes an input
 	la $a0, buffer #load the byte space into the address
-	li $a1,20 #make room for the string
+	li $a1,9 #make room for the string
 	move $t7,$a0 #store the string in $t7
 	syscall
 
 	subi $t9,$t9,1 #subtract one since we just got our first input
 	jal get_num	#jump to get_num which is to convert the string to the correct base and then to decimal
-	
+	add $t4,$t4,$t3 #adds the returning number into the overall sum
 	#loop back if counter t9 is not equal to zero 
 	bnez $t9,main_1
 	j end #jump to end to terminate for now
@@ -54,11 +55,80 @@ main_1:
 
 #begin get num routine, will be called by main to convert valid argument to decimal
 get_num:
-
+	#check the base that was given by the user and convert that number by calling the respective function
+	add $t3,$zero,$zero
+	la $t1,($t7)
+	beq $t8,10,dec
+	beq $t8,8,octal
+	beq $t8,16,hex
+	add $t3,$t3,-1 #store -1 into the sum as the base was invalid
+	#will drop off to jr below and return to main
+	
 #jump back to the main_1 function to get the next input
-jr $ra
+return:
+	jr $ra
 
+#function to convert the number to decimal ie. just add it to the overall sum register
+dec:
+	#get starting adress of the string
+	lb $t0,($t1) #load the byte from the calculated adress
+	beq $t0,10,return # check if current byte is the newline character
+	beq $t0,0,return #check if current byte is the null character
+	subi $t0,$t0,48  #subtract 48 to obtain the decimal value of the number
+	add $t3,$t3,$t0
+	addi $t1,$t1,1
+	lb $t0,($t1)
+	beq $t0,10,return # check if current byte is the newline character
+	beq $t0,0,return #check if current byte is the null character
+	mul $t3,$t3,10
+	j dec
+	
+
+octal:
+		#get starting adress of the string
+	lb $t0,($t1) #load the byte from the calculated adress
+	beq $t0,10,return # check if current byte is the newline character
+	beq $t0,0,return #check if current byte is the null character
+	subi $t0,$t0,48  #subtract 48 to obtain the decimal value of the number
+	add $t3,$t3,$t0
+	addi $t1,$t1,1
+	lb $t0,($t1)
+	beq $t0,10,return # check if current byte is the newline character
+	beq $t0,0,return #check if current byte is the null character
+	mul $t3,$t3,8
+	j octal
+	
+	
+
+hex: 
+	lb $t0,($t1)
+	beq $t0,10,return
+	beq $t0,0,return
+	subi $t0,$t0,48
+	bge $t0,10,letterhex
+	add $t3,$t3,$t0
+	addi $t1,$t1,1
+	lb $t0,($t1)
+	beq $t0,10,return
+	beq $t0,0,return
+	mul $t3,$t3,16
+	j hex
+
+#call to end the program once all inputs have been accounted for
 end:
+add $a0,$zero,$t4
+li $v0,1
+syscall
 li $v0,10
 syscall
+	
+letterhex: 
+	sub $t0,$t0,39
+	add $t3,$t3,$t0
+	addi $t1,$t1,1
+	lb $t0,($t1)
+	beq $t0,10,return
+	beq $t0,0,return
+	mul $t3,$t3,16
+	j hex
 	
