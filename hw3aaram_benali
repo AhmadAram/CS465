@@ -61,7 +61,7 @@ get_num:
 	beq $t8,10,dec
 	beq $t8,8,octal
 	beq $t8,16,hex
-	add $t3,$t3,-1 #store -1 into the sum as the base was invalid
+	add $t3,$t3,0 #store -1 into the sum as the base was invalid
 	#will drop off to jr below and return to main
 	
 #jump back to the main_1 function to get the next input
