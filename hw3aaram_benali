@@ -2,7 +2,6 @@
 # Course: CS 465-002
 # Assignment: Homework 3
 #
-# Instruction Count: ????????????????
 # Algorithm: Since the the user input is being interpreted as a string,
 #   all the values are being compared against ascii codes. In our case,
 #   the subroutine get_num will compare bases of each input value and
