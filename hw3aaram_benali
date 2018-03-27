@@ -1,3 +1,19 @@
+# Created by: Ahmad Aram and Nabil Adam Benali
+# Course: CS 465-002
+# Assignment: Homework 3
+#
+# Instruction Count: ????????????????
+# Algorithm: Since the the user input is being interpreted as a string,
+#   all the values are being compared against ascii codes. In our case,
+#   the subroutine get_num will compare bases of each input value and
+#   go to the proper base conversion label, or return to main_1 if base
+#   was invaild. Each character is loaded from the input, compared if
+#   it is null or '\0', then is subtracted by the first ascii value
+#   that base can represent (octal range = 48 to 57, dec = 47 to 58,
+#   hex letters = 97 to 102). After the value is obtained, the Sum of the number
+#   is the number after the subtraction * original base + pre-subtraction value.
+#   This process is continued for all the chars in the string for each value entered.
+
 .globl get_num
 .data
 #below is the prompts in order of how they are presented to the user
