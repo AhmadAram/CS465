@@ -129,7 +129,7 @@ hex:
 	mul $t3,$t3,16
 	j hex
 
-#call to end the program once all inputs have been accounted for
+#call to end the program once all inputs have been accounted for also ends the subroutine get_num
 end:
 add $a0,$zero,$t4
 li $v0,1
